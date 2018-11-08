@@ -14,14 +14,7 @@ public class HelloController {
     @ResponseBody
     public Map<String, Object> hello(){
         Map<String,Object> result = new HashMap<>();
-        result.put("msg","test hello");
-        return result;
-    }
-    @RequestMapping("/hello1")
-    @ResponseBody
-    public Map<String, Object> hello1(){
-        Map<String,Object> result = new HashMap<>();
-        result.put("msg","test hello");
+        result.put("msg","hello");
         return result;
     }
 }
