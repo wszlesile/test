@@ -45,9 +45,9 @@ public class BinaryTreeTest {
         Node c;
         while (!stack.empty()){
             c = stack.peek();
-            if(c.leftNode != null && c.leftNode != h && c.rightNode != h){
+            if(c.leftNode != null && ((c.leftNode != h && c.rightNode != h) || h == null)){
                 stack.push(c.leftNode);
-            }else if(c.rightNode != null && c.rightNode != h){
+            }else if(c.rightNode != null &&  c.rightNode != h){
                 stack.push(c.rightNode);
             }else{
                h =  stack.pop();
