@@ -1,5 +1,7 @@
 package com.wsz.test.algorithm.binaryTree;
 
+import com.wsz.test.algorithm.TreeNode;
+
 import java.util.*;
 
 public class BinaryTreeTest {
@@ -134,5 +136,183 @@ public class BinaryTreeTest {
           }
       }
       return max;
+    }
+    // 不同的二叉搜索树
+    public static List<TreeNode> generateTrees(int n) {
+        List<TreeNode> list = new ArrayList<>();
+        for(int i = 1;i<=n;i++){
+            TreeNode node = new TreeNode(i);
+            list.add(node);
+        }
+        list =  buildTree(list);
+        return list;
+    }
+    private static List<TreeNode> buildTree(List<TreeNode> list){
+        if(list == null || list.size() == 0){
+            return null;
+        }
+        List<TreeNode> result = new ArrayList<>();
+        if(list.size() == 1){
+            result.add(new TreeNode(list.get(0).val,list.get(0).left,list.get(0).right));
+        }
+        for(int i = 0;i<list.size();i++){
+            TreeNode root = list.get(i);
+            List<TreeNode> leftNodes = null;
+            if(i != 0){
+                leftNodes = list.subList(0,i);
+            }
+            leftNodes = buildTree(leftNodes);
+            List<TreeNode> rightNodes = null;
+            if(i != list.size()-1){
+                rightNodes = list.subList(i+1,list.size());
+            }
+            rightNodes = buildTree(rightNodes);
+            if(leftNodes != null && rightNodes != null){
+                // 左子树的可能性
+                for(TreeNode leftNode : leftNodes){
+                    for(TreeNode rightNode : rightNodes){
+                        TreeNode newRoot = new TreeNode(root.val,root.left,root.right);
+                        newRoot.left = new TreeNode(leftNode.val,leftNode.left,leftNode.right);
+                        newRoot.right = new TreeNode(rightNode.val,rightNode.left,rightNode.right);
+                        result.add(newRoot);
+                    }
+                }
+            }else if(leftNodes != null){
+                for(TreeNode leftNode : leftNodes){
+                    TreeNode newRoot = new TreeNode(root.val,root.left,root.right);
+                    newRoot.left = new TreeNode(leftNode.val,leftNode.left,leftNode.right);
+                    result.add(newRoot);
+                }
+            } else if(rightNodes != null){
+                // 右子树的可能性
+                for(TreeNode rightNode : rightNodes){
+                    TreeNode newRoot = new TreeNode(root.val,root.left,root.right);
+                    newRoot.right = new TreeNode(rightNode.val,rightNode.left,rightNode.right);
+                    result.add(newRoot);
+                }
+            }
+        }
+        return result;
+    }
+    // 恢复一颗搜索二叉树（两个节点被交换）
+    public static void recoverTree(TreeNode root) {
+        if(root == null){
+            return;
+        }
+        Stack<TreeNode> stack = new Stack<>();
+        List<TreeNode> nodes = new ArrayList<>();
+        while(!stack.isEmpty() || root != null){
+            if(root != null){
+                stack.push(root);
+                root = root.left;
+            }else{
+                root = stack.pop();
+                nodes.add(root);
+                root = root.right;
+            }
+        }
+        TreeNode x = null;
+        TreeNode y = null;
+        for(int i = 0; i<nodes.size()-1;i++){
+            y = nodes.get(i+1);
+            if(x==null) {
+                x = nodes.get(i);
+            }
+        }
+        swap(x,y);
+    }
+    private static void swap(TreeNode n1,TreeNode n2){
+        if(n1 == null || n2 == null){
+            return;
+        }
+        int val = n2.val;
+        n2.val = n1.val;
+        n1.val = val;
+    }
+    // 序列化和反序列化二叉搜索树
+    public class Codec {
+
+        // Encodes a tree to a single string.
+        public String serialize(TreeNode root) {
+            // val-leftVal-rightVal,
+            if(root == null){
+                return "";
+            }
+            return recursionTree(root);
+        }
+        private String recursionTree(TreeNode node){
+            Queue<TreeNode> queue = new LinkedList<>();
+            String result = "";
+            queue.add(node);
+            while(!queue.isEmpty()){
+                node = queue.poll();
+                String temp = node.val+"";
+                if(node.left != null){
+                    queue.add(node.left);
+                    temp += "-"+node.left.val;
+                }else{
+                    temp += "-null";
+                }
+                if(node.right != null){
+                    queue.add(node.right);
+                    temp += "-"+node.right.val;
+                }else{
+                    temp += "-null";
+                }
+                result +=temp+",";
+            }
+            return result;
+        }
+
+        // Decodes your encoded data to tree.
+        public TreeNode deserialize(String data) {
+            TreeNode root = null;
+            String[] arr = data.split(",");
+            Map<Integer,TreeNode> lookupMap = new HashMap<>();
+
+            for(int i = arr.length-1;i>=0;i--){
+                String arrStr=arr[i];
+                if(arrStr.equals("")){
+                    continue;
+                }
+                String[] valArr = arrStr.split("-");
+                if(i == arr.length -1){
+                    root = new TreeNode(Integer.parseInt(valArr[0]));
+                    TreeNode leftNode = null;
+                    if(!valArr[1].equals("null")){
+                        leftNode = lookupMap.get(Integer.parseInt(valArr[1]));
+                    }
+                    TreeNode rightNode = null;
+                    if(!valArr[2].equals("null")){
+                        rightNode = lookupMap.get(Integer.parseInt(valArr[2]));
+                    }
+                    root.left = leftNode;
+                    root.right = rightNode;
+                }else{
+                    TreeNode node = new TreeNode(Integer.parseInt(valArr[0]));
+                    TreeNode leftNode = null;
+                    if(!valArr[1].equals("null")){
+                        leftNode = lookupMap.get(Integer.parseInt(valArr[1]));
+                        node.left = leftNode;
+                    }
+                    TreeNode rightNode = null;
+                    if(!valArr[2].equals("null")){
+                        rightNode = lookupMap.get(Integer.parseInt(valArr[2]));
+                        node.right = rightNode;
+                    }
+                    if(!valArr[1].equals("null") && leftNode == null){
+                        leftNode = new TreeNode(Integer.parseInt(valArr[1]));
+                        node.left  = leftNode;
+                        lookupMap.put(Integer.parseInt(valArr[1]),leftNode);
+                    }
+                    if(!valArr[2].equals("null") && rightNode == null){
+                        rightNode = new TreeNode(Integer.parseInt(valArr[2]));
+                        node.right = rightNode;
+                        lookupMap.put(Integer.parseInt(valArr[2]),rightNode);
+                    }
+                }
+            }
+            return root;
+        }
     }
 }
