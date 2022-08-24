@@ -276,7 +276,7 @@ public class BinaryTreeTest {
                     continue;
                 }
                 String[] valArr = arrStr.split("-");
-                if(i == arr.length -1){
+                if(i == 0){
                     root = new TreeNode(Integer.parseInt(valArr[0]));
                     TreeNode leftNode = null;
                     if(!valArr[1].equals("null")){
@@ -290,6 +290,7 @@ public class BinaryTreeTest {
                     root.right = rightNode;
                 }else{
                     TreeNode node = new TreeNode(Integer.parseInt(valArr[0]));
+                    lookupMap.put(Integer.parseInt(valArr[0]),node);
                     TreeNode leftNode = null;
                     if(!valArr[1].equals("null")){
                         leftNode = lookupMap.get(Integer.parseInt(valArr[1]));
